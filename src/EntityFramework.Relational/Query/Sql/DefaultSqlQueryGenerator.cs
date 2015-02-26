@@ -163,6 +163,23 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             }
         }
 
+        public virtual Expression VisitCustomTableExpression(CustomTableExpression customTableExpression)
+        {
+            Check.NotNull(customTableExpression, nameof(customTableExpression));
+
+            if (customTableExpression.Schema != null)
+            {
+                _sql.Append(DelimitIdentifier(customTableExpression.Schema))
+                    .Append(".");
+            }
+
+            _sql.Append(DelimitSubQuery(customTableExpression.Table))
+                .Append(" AS ")
+                .Append(DelimitIdentifier(customTableExpression.Alias));
+
+            return customTableExpression;
+        }
+
         public virtual Expression VisitTableExpression(TableExpression tableExpression)
         {
             Check.NotNull(tableExpression, nameof(tableExpression));
@@ -656,6 +673,13 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             Check.NotEmpty(identifier, nameof(identifier));
 
             return "\"" + identifier + "\"";
+        }
+
+        protected virtual string DelimitSubQuery([NotNull] string query)
+        {
+            Check.NotEmpty(query, nameof(query));
+
+            return "(" + query + ")";
         }
     }
 }

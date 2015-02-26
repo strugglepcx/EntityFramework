@@ -15,7 +15,7 @@ using System.Threading;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
-    public class QuerySqlServerTest : QueryTestBase<NorthwindQuerySqlServerFixture>
+    public class QuerySqlServerTest : QueryRelationalTest<NorthwindQuerySqlServerFixture>
     {
         public override void Where_simple_closure()
         {
@@ -1884,6 +1884,66 @@ INNER JOIN [Orders] AS [o0] ON [o].[CustomerID] = [o0].[CustomerID]",
                 @"SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
 FROM [Orders] AS [o]
 WHERE ([o].[CustomerID] = 'QUICK' AND [o].[OrderDate] > @__p_0)",
+                Sql);
+        }
+
+        public override void Custom_queryable_simple()
+        {
+            base.Custom_queryable_simple();
+
+            Assert.Equal(
+                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM ("
++ customQueryableSimple
++ @") AS [c]",
+                Sql);
+        }
+
+        public override void Custom_queryable_filter()
+        {
+            base.Custom_queryable_filter();
+
+            Assert.Equal(
+                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM ("
++ customQueryableFilter
++ @") AS [c]",
+                Sql);
+
+        }
+        public override void Custom_queryable_cached_by_query()
+        {
+            base.Custom_queryable_cached_by_query();
+
+            Assert.Equal(
+                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM ("
++ customQueryableCachedByQueryFirst
++ @") AS [c]
+
+SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM ("
++ customQueryableCachedByQuerySecond
++ @") AS [c]",
+                Sql);
+        }
+
+        public override void Custom_queryable_where_simple_closure_via_query_cache()
+        {
+            base.Custom_queryable_where_simple_closure_via_query_cache();
+
+            Assert.Equal(
+                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM ("
++ customQueryableWhereSimpleClosureViaQueryCache
++ @") AS [c]
+WHERE [c].[ContactTitle] = @__title_0
+
+SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM ("
++ customQueryableWhereSimpleClosureViaQueryCache
++ @") AS [c]
+WHERE [c].[ContactTitle] = @__title_0",
                 Sql);
         }
 

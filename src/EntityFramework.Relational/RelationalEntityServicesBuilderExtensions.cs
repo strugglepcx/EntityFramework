@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational.Migrations;
 using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
+using Microsoft.Data.Entity.Relational.Query;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
@@ -26,6 +27,7 @@ namespace Microsoft.Data.Entity.Relational
                 .AddSingleton<ParameterNameGeneratorFactory>()
                 .AddSingleton<ModificationCommandComparer>()
                 .AddSingleton<MigrationIdGenerator>()
+                .AddScoped<RelationalCustomQueryProvider>()
                 .AddScoped<Migrator>()
                 .AddScoped<MigrationAssembly>()
                 .AddScoped(RelationalDataStoreServiceFactories.ModelDifferFactory)

@@ -10,16 +10,16 @@ using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
-    public class TableExpression : TableExpressionBase
+    public class CustomTableExpression : TableExpressionBase
     {
-        public TableExpression(
+        public CustomTableExpression(
             [NotNull] string table,
             [CanBeNull] string schema,
             [NotNull] string alias,
             [NotNull] IQuerySource querySource)
             : base(
-                Check.NotNull(querySource, nameof(querySource)),
-                Check.NotEmpty(alias, nameof(alias)))
+                  Check.NotNull(querySource, nameof(querySource)),
+                  Check.NotEmpty(alias, nameof(alias)))
         {
             Check.NotEmpty(table, nameof(table));
 
@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             var specificVisitor = visitor as ISqlExpressionVisitor;
 
             return specificVisitor != null
-                ? specificVisitor.VisitTableExpression(this)
+                ? specificVisitor.VisitCustomTableExpression(this)
                 : base.Accept(visitor);
         }
 
