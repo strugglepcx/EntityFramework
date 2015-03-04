@@ -7,6 +7,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Query.ExpressionTreeVisitors;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
@@ -70,15 +71,47 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
         protected override Expression VisitConstantExpression(ConstantExpression constantExpression)
         {
-            var queryable = constantExpression.Value as IRelationalCustomQueryable;
+            var entityQueryable = constantExpression.Value as IEntityQueryable;
 
-            return (queryable != null)
-                ? VisitRelationalCustomQueryable(queryable.Query, queryable.ElementType)
-                : base.VisitConstantExpression(constantExpression);
+            if (entityQueryable != null)
+            {
+                if (entityQueryable["sql"] != null)
+                {
+                    return VisitRawSqlQueryable(entityQueryable.ElementType, entityQueryable["sql"]);
+                }
+            }
+
+            return base.VisitConstantExpression(constantExpression);
         }
 
-
         protected override Expression VisitEntityQueryable(Type elementType)
+        {
+            return VisitSelectExpression(elementType,
+                (entityType, tableName) =>
+                    new TableExpression(
+                        tableName,
+                        QueryModelVisitor.QueryCompilationContext.GetSchema(entityType),
+                        _querySource.ItemName.StartsWith("<generated>_")
+                            ? tableName.First().ToString().ToLower()
+                            : _querySource.ItemName,
+                        _querySource));
+        }
+
+        protected virtual Expression VisitRawSqlQueryable(Type elementType, string rawSql)
+        {
+            return VisitSelectExpression(elementType,
+                (entityType, tableName) =>
+                    new RawSqlDerivedTableExpression(
+                        rawSql,
+                        _querySource.ItemName.StartsWith("<generated>_")
+                            ? tableName.First().ToString().ToLower()
+                            : _querySource.ItemName,
+                        _querySource));
+        }
+
+        private Expression VisitSelectExpression(
+            Type elementType,
+            Func<IEntityType, string, TableExpressionBase> createTableExpression)
         {
             Check.NotNull(elementType, nameof(elementType));
 
@@ -88,15 +121,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             var selectExpression = new SelectExpression();
             var tableName = QueryModelVisitor.QueryCompilationContext.GetTableName(entityType);
 
-            selectExpression
-                .AddTable(
-                    new TableExpression(
-                        tableName,
-                        QueryModelVisitor.QueryCompilationContext.GetSchema(entityType),
-                        _querySource.ItemName.StartsWith("<generated>_")
-                            ? tableName.First().ToString().ToLower()
-                            : _querySource.ItemName,
-                        _querySource));
+            selectExpression.AddTable(createTableExpression(entityType, tableName));
 
             QueryModelVisitor.AddQuery(_querySource, selectExpression);
 
@@ -146,83 +171,6 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                             Expression.Constant(keyFactory),
                             Expression.Constant(keyProperties),
                             materializer
-                        });
-            }
-
-            return Expression.Call(
-                QueryModelVisitor.QueryCompilationContext.QueryMethodProvider.QueryMethod
-                    .MakeGenericMethod(queryMethodInfo.ReturnType),
-                EntityQueryModelVisitor.QueryContextParameter,
-                Expression.Constant(new CommandBuilder(selectExpression, QueryModelVisitor.QueryCompilationContext)),
-                Expression.Lambda(
-                    Expression.Call(queryMethodInfo, queryMethodArguments),
-                    _readerParameter));
-        }
-
-        protected Expression VisitRelationalCustomQueryable(string sql, Type elementType)
-        {
-            Check.NotNull(elementType, nameof(elementType));
-
-            var queryMethodInfo = RelationalQueryModelVisitor.CreateValueReaderMethodInfo;
-            var entityType = QueryModelVisitor.QueryCompilationContext.Model.GetEntityType(elementType);
-
-            var selectExpression = new SelectExpression();
-            var tableName = QueryModelVisitor.QueryCompilationContext.GetTableName(entityType);
-
-            selectExpression
-                .AddTable(
-                    new CustomTableExpression(
-                        sql,
-                        QueryModelVisitor.QueryCompilationContext.GetSchema(entityType),
-                        _querySource.ItemName.StartsWith("<generated>_")
-                            ? tableName.First().ToString().ToLower()
-                            : _querySource.ItemName,
-                        _querySource));
-
-            QueryModelVisitor.AddQuery(_querySource, selectExpression);
-
-            var queryMethodArguments
-                = new List<Expression>
-                    {
-                        Expression.Constant(_querySource),
-                        EntityQueryModelVisitor.QueryContextParameter,
-                        EntityQueryModelVisitor.QuerySourceScopeParameter,
-                        _readerParameter
-                    };
-
-            if (QueryModelVisitor.QuerySourceRequiresMaterialization(_querySource))
-            {
-                foreach (var property in entityType.Properties)
-                {
-                    selectExpression.AddToProjection(
-                        QueryModelVisitor.QueryCompilationContext
-                            .GetColumnName(property),
-                        property,
-                        _querySource);
-                }
-
-                queryMethodInfo = RelationalQueryModelVisitor.CreateEntityMethodInfo.MakeGenericMethod(elementType);
-
-                var keyProperties
-                    = entityType.GetPrimaryKey().Properties;
-
-                var keyFactory
-                    = QueryModelVisitor.QueryCompilationContext.EntityKeyFactorySource
-                        .GetKeyFactory(keyProperties);
-
-                var materializer
-                    = QueryModelVisitor.QueryCompilationContext.EntityMaterializerSource
-                        .GetMaterializer(entityType);
-
-                queryMethodArguments.AddRange(
-                    new Expression[]
-                        {
-                            Expression.Constant(0),
-                            Expression.Constant(entityType),
-                            Expression.Constant(QueryModelVisitor.QuerySourceRequiresTracking(_querySource)),
-                            Expression.Constant(keyFactory),
-                            Expression.Constant(keyProperties),
-                            Expression.Constant(materializer)
                         });
             }
 

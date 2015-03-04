@@ -2,11 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
+using Microsoft.Data.Entity.Metadata;
 
-namespace Microsoft.Data.Entity.Relational.Query
+namespace Microsoft.Data.Entity.Query
 {
-    public interface IRelationalCustomQueryable : IQueryable
+    public interface IEntityQueryable : IMetadata, IQueryable
     {
-        string Query { get; }
     }
 }

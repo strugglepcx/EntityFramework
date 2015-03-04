@@ -3,9 +3,10 @@
 
 using System;
 using System.Linq;
+using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Relational.Query;
+using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 
@@ -13,20 +14,23 @@ namespace Microsoft.Data.Entity.Relational
 {
     public class RelationalDbSet<TEntity> where TEntity : class
     {
-        private readonly IServiceProvider _serviceProvider;
+        private readonly LazyRef<EntityQueryProvider> _queryProvider;
 
         public RelationalDbSet([NotNull]DbSet<TEntity> dbSet)
         {
             Check.NotNull(dbSet, nameof(dbSet));
 
-            _serviceProvider = ((IAccessor<IServiceProvider>)dbSet).Service;
+            _queryProvider
+                = new LazyRef<EntityQueryProvider>(
+                    () => ((IAccessor<IServiceProvider>)dbSet).Service.GetRequiredService<EntityQueryProvider>());
         }
 
-        public virtual IQueryable<TEntity> Query([NotNull]string query)
+        public virtual IQueryable<TEntity> FromSql([NotNull]string query)
         {
-            return new RelationalCustomQueryable<TEntity>(
-                _serviceProvider.GetRequiredService<RelationalCustomQueryProvider>(),
-                query);
+            var queryable = new EntityQueryable<TEntity>(_queryProvider.Value);
+            queryable.AddAnnotation("sql", query);
+
+            return _queryProvider.Value.CreateQuery<TEntity>(Expression.Constant(queryable));
         }
     }
 }

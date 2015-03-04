@@ -147,7 +147,7 @@
     <Compile Include="Query\CommandParameter.cs" />
     <Compile Include="Query\EqualityPredicateOptimizer.cs" />
     <Compile Include="Query\Expressions\ColumnAggregateExpression.cs" />
-    <Compile Include="Query\Expressions\CustomTableExpression.cs" />
+    <Compile Include="Query\Expressions\RawSqlDerivedTableExpression.cs" />
     <Compile Include="Query\Expressions\DiscriminatorPredicateExpression.cs" />
     <Compile Include="Query\Expressions\InExpressionBase.cs" />
     <Compile Include="Query\Expressions\NotInExpression.cs" />
@@ -167,7 +167,6 @@
     <Compile Include="Query\IncludeCollectionIterator.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\QueryFlatteningExpressionTreeVisitor.cs" />
     <Compile Include="Query\IRelationalQueryContextFactory.cs" />
-    <Compile Include="Query\IRelationalCustomQueryable.cs" />
     <Compile Include="Query\Methods\ContainsTranslator.cs" />
     <Compile Include="Query\OffsetValueReaderDecorator.cs" />
     <Compile Include="Query\QueryingEnumerable.cs" />
@@ -193,8 +192,6 @@
     <Compile Include="Query\ExpressionTreeVisitors\RelationalOrderingExpressionTreeVisitor.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\RelationalProjectionExpressionTreeVisitor.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\RelationalEntityQueryableExpressionTreeVisitor.cs" />
-    <Compile Include="Query\RelationalCustomQueryable`.cs" />
-    <Compile Include="Query\RelationalCustomQueryProvider.cs" />
     <Compile Include="Query\RelationalQueryContextFactory.cs" />
     <Compile Include="Query\Sql\ISqlExpressionVisitor.cs" />
     <Compile Include="Query\Expressions\ColumnExpression.cs" />

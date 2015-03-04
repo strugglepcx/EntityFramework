@@ -163,21 +163,15 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             }
         }
 
-        public virtual Expression VisitCustomTableExpression(CustomTableExpression customTableExpression)
+        public virtual Expression VisitRawSqlDerivedTableExpression([NotNull] RawSqlDerivedTableExpression rawSqlDerivedTableExpression)
         {
-            Check.NotNull(customTableExpression, nameof(customTableExpression));
+            Check.NotNull(rawSqlDerivedTableExpression, nameof(rawSqlDerivedTableExpression));
 
-            if (customTableExpression.Schema != null)
-            {
-                _sql.Append(DelimitIdentifier(customTableExpression.Schema))
-                    .Append(".");
-            }
-
-            _sql.Append(DelimitSubQuery(customTableExpression.Table))
+            _sql.Append(DelimitSubQuery(rawSqlDerivedTableExpression.RawSql))
                 .Append(" AS ")
-                .Append(DelimitIdentifier(customTableExpression.Alias));
+                .Append(DelimitIdentifier(rawSqlDerivedTableExpression.Alias));
 
-            return customTableExpression;
+            return rawSqlDerivedTableExpression;
         }
 
         public virtual Expression VisitTableExpression(TableExpression tableExpression)

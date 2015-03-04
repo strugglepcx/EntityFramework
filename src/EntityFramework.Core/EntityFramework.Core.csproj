@@ -132,6 +132,7 @@
     <Compile Include="Query\EntityLoadInfo.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\ExpressionStringBuilder.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\ExpressionTreeVisitorBase.cs" />
+    <Compile Include="Query\IEntityQueryable.cs" />
     <Compile Include="Query\IIncludableQueryable.cs" />
     <Compile Include="Infrastructure\DbContextActivator.cs" />
     <Compile Include="DbContextOptions.cs" />

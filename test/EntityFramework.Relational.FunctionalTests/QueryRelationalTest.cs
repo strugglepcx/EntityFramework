@@ -17,70 +17,57 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         {
         }
 
-        protected const string customQueryableSimple = "SELECT * FROM Customers";
         [Fact]
-        public virtual void Custom_queryable_simple()
+        public virtual void From_sql_queryable_simple()
         {
-            AssertCustomQuery<Customer>(
-                cs => cs.Query(customQueryableSimple),
+            AssertRelationalQuery<Customer>(
+                cs => cs.FromSql("SELECT * FROM Customers"),
                 cs => cs,
                 entryCount: 91);
         }
 
-        protected const string customQueryableFilterContactNamePattern = "z";
-        protected const string customQueryableFilter = "SELECT * FROM Customers WHERE Customers.ContactName LIKE '%"
-            + customQueryableFilterContactNamePattern + "%'";
         [Fact]
-        public virtual void Custom_queryable_filter()
+        public virtual void From_sql_queryable_filter()
         {
-            AssertCustomQuery<Customer>(
-                cs => cs.Query(customQueryableFilter),
-                cs => cs.Where(c => c.ContactName.Contains(customQueryableFilterContactNamePattern)),
+            AssertRelationalQuery<Customer>(
+                cs => cs.FromSql("SELECT * FROM Customers WHERE Customers.ContactName LIKE '%z%'"),
+                cs => cs.Where(c => c.ContactName.Contains("z")),
                 entryCount: 14);
         }
 
-        protected const string customQueryableCachedByQueryFirstCity = "London";
-        protected const string customQueryableCachedByQueryFirst = "SELECT * FROM Customers WHERE Customers.City = '"
-            + customQueryableCachedByQueryFirstCity + "'";
-        protected const string customQueryableCachedByQuerySecondCity = "Seattle";
-        protected const string customQueryableCachedByQuerySecond = "SELECT * FROM Customers WHERE Customers.City = '"
-            + customQueryableCachedByQuerySecondCity + "'";
         [Fact]
-        public virtual void Custom_queryable_cached_by_query()
+        public virtual void From_sql_queryable_cached_by_query()
         {
-            AssertCustomQuery<Customer>(
-                cs => cs.Query(customQueryableCachedByQueryFirst),
-                cs => cs.Where(c => c.City == customQueryableCachedByQueryFirstCity),
+            AssertRelationalQuery<Customer>(
+                cs => cs.FromSql("SELECT * FROM Customers WHERE Customers.City = 'London'"),
+                cs => cs.Where(c => c.City == "London"),
                 entryCount: 6);
 
-            AssertCustomQuery<Customer>(
-                cs => cs.Query(customQueryableCachedByQuerySecond),
-                cs => cs.Where(c => c.City == customQueryableCachedByQuerySecondCity),
+            AssertRelationalQuery<Customer>(
+                cs => cs.FromSql("SELECT * FROM Customers WHERE Customers.City = 'Seattle'"),
+                cs => cs.Where(c => c.City == "Seattle"),
                 entryCount: 1);
         }
 
-        protected const string customQueryableWhereSimpleClosureViaQueryCacheContactNamePattern = "o";
-        protected const string customQueryableWhereSimpleClosureViaQueryCache = "SELECT * FROM Customers WHERE Customers.ContactName LIKE '%"
-            + customQueryableWhereSimpleClosureViaQueryCacheContactNamePattern + "%'";
         [Fact]
-        public virtual void Custom_queryable_where_simple_closure_via_query_cache()
+        public virtual void From_sql_queryable_where_simple_closure_via_query_cache()
         {
             var title = "Sales Associate";
 
-            AssertCustomQuery<Customer>(
-                cs => cs.Query(customQueryableWhereSimpleClosureViaQueryCache).Where(c => c.ContactTitle == title),
-                cs => cs.Where(c => c.ContactName.Contains(customQueryableWhereSimpleClosureViaQueryCacheContactNamePattern)).Where(c => c.ContactTitle == title),
+            AssertRelationalQuery<Customer>(
+                cs => cs.FromSql("SELECT * FROM Customers WHERE Customers.ContactName LIKE '%o%'").Where(c => c.ContactTitle == title),
+                cs => cs.Where(c => c.ContactName.Contains("o")).Where(c => c.ContactTitle == title),
                 entryCount: 4);
 
             title = "Sales Manager";
 
-            AssertCustomQuery<Customer>(
-                cs => cs.Query(customQueryableWhereSimpleClosureViaQueryCache).Where(c => c.ContactTitle == title),
-                cs => cs.Where(c => c.ContactName.Contains(customQueryableWhereSimpleClosureViaQueryCacheContactNamePattern)).Where(c => c.ContactTitle == title),
+            AssertRelationalQuery<Customer>(
+                cs => cs.FromSql("SELECT * FROM Customers WHERE Customers.ContactName LIKE '%o%'").Where(c => c.ContactTitle == title),
+                cs => cs.Where(c => c.ContactName.Contains("o")).Where(c => c.ContactTitle == title),
                 entryCount: 7);
         }
 
-        protected void AssertCustomQuery<TItem>(
+        protected void AssertRelationalQuery<TItem>(
             Func<RelationalDbSet<TItem>, IQueryable<object>> relationalQuery,
             Func<IQueryable<TItem>, IQueryable<object>> l2oQuery,
             bool assertOrder = false,

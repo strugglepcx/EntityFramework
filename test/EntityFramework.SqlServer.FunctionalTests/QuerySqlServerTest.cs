@@ -1887,62 +1887,50 @@ WHERE ([o].[CustomerID] = 'QUICK' AND [o].[OrderDate] > @__p_0)",
                 Sql);
         }
 
-        public override void Custom_queryable_simple()
+        public override void From_sql_queryable_simple()
         {
-            base.Custom_queryable_simple();
+            base.From_sql_queryable_simple();
 
             Assert.Equal(
                 @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM ("
-+ customQueryableSimple
-+ @") AS [c]",
+FROM (SELECT * FROM Customers) AS [c]",
                 Sql);
         }
 
-        public override void Custom_queryable_filter()
+        public override void From_sql_queryable_filter()
         {
-            base.Custom_queryable_filter();
+            base.From_sql_queryable_filter();
 
             Assert.Equal(
                 @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM ("
-+ customQueryableFilter
-+ @") AS [c]",
+FROM (SELECT * FROM Customers WHERE Customers.ContactName LIKE '%z%') AS [c]",
                 Sql);
 
         }
-        public override void Custom_queryable_cached_by_query()
+        public override void From_sql_queryable_cached_by_query()
         {
-            base.Custom_queryable_cached_by_query();
+            base.From_sql_queryable_cached_by_query();
 
             Assert.Equal(
                 @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM ("
-+ customQueryableCachedByQueryFirst
-+ @") AS [c]
+FROM (SELECT * FROM Customers WHERE Customers.City = 'London') AS [c]
 
 SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM ("
-+ customQueryableCachedByQuerySecond
-+ @") AS [c]",
+FROM (SELECT * FROM Customers WHERE Customers.City = 'Seattle') AS [c]",
                 Sql);
         }
 
-        public override void Custom_queryable_where_simple_closure_via_query_cache()
+        public override void From_sql_queryable_where_simple_closure_via_query_cache()
         {
-            base.Custom_queryable_where_simple_closure_via_query_cache();
+            base.From_sql_queryable_where_simple_closure_via_query_cache();
 
             Assert.Equal(
                 @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM ("
-+ customQueryableWhereSimpleClosureViaQueryCache
-+ @") AS [c]
+FROM (SELECT * FROM Customers WHERE Customers.ContactName LIKE '%o%') AS [c]
 WHERE [c].[ContactTitle] = @__title_0
 
 SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM ("
-+ customQueryableWhereSimpleClosureViaQueryCache
-+ @") AS [c]
+FROM (SELECT * FROM Customers WHERE Customers.ContactName LIKE '%o%') AS [c]
 WHERE [c].[ContactTitle] = @__title_0",
                 Sql);
         }
