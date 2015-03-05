@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
-    public class AsyncQuerySqlServerTest : AsyncQueryTestBase<NorthwindQuerySqlServerFixture>
+    public class AsyncQuerySqlServerTest : AsyncQueryRelationalTest<NorthwindQuerySqlServerFixture>
     {
         [Fact]
         public async Task Single_Predicate_Cancellation()

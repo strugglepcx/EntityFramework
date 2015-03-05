@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
     public class QueryRelationalTest<TFixture> : QueryTestBase<TFixture>
         where TFixture : NorthwindQueryFixtureBase, new()
     {
-        public QueryRelationalTest(TFixture fixture)
+        protected QueryRelationalTest(TFixture fixture)
             : base(fixture)
         {
         }

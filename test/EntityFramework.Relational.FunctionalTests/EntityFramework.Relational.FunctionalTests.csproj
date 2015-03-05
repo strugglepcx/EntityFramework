@@ -74,6 +74,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AsyncQueryRelationalTest.cs" />
     <Compile Include="MappingQueryTestBase.cs" />
     <Compile Include="MappingQueryFixtureBase.cs" />
     <Compile Include="PropertyEntryTestBase.cs" />
