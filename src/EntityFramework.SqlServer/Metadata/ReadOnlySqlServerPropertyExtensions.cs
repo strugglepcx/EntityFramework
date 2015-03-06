@@ -76,7 +76,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             var modelExtensions = Property.EntityType.Model.SqlServer();
 
             if (ValueGenerationStrategy != SqlServerValueGenerationStrategy.Sequence
-                && (ValueGenerationStrategy != null
+                && ((ValueGenerationStrategy != null && ValueGenerationStrategy != SqlServerValueGenerationStrategy.Default)
                     || modelExtensions.ValueGenerationStrategy != SqlServerValueGenerationStrategy.Sequence))
             {
                 return null;

@@ -29,7 +29,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                             .ForSqlServer(b => { eb.Property(e => e.Id).ForSqlServer().UseSequence(); });
 
                         eb.Property(typeof(string), SimpleEntity.ShadowPropertyName);
-                        eb.Property(e => e.Id).GenerateValueOnAdd(false);
                         eb.Key(e => e.Id);
                     });
         }

@@ -19,12 +19,10 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                     .AddEntityFramework()
                     .AddInMemoryStore()
                     .ServiceCollection()
+                    .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
                     .BuildServiceProvider();
 
-            var model = CreateModel();
-
-            _options = new DbContextOptions()
-                .UseModel(model);
+            _options = new DbContextOptions();
             _options.UseInMemoryStore();
 
             using (var context = new DbContext(_serviceProvider, _options))

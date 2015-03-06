@@ -121,13 +121,21 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
         }
 
         // TODO: Move to metadata API?
-        // See Issue #1271: Principal keys need to generate values on add, but the database should only have one Identity column.
-        private SqlServerValueGenerationStrategy? GetValueGenerationStrategy(IProperty property) =>
-            property.SqlServer().ValueGenerationStrategy
-            ?? property.EntityType.Model.SqlServer().ValueGenerationStrategy
-            ?? (property.GenerateValueOnAdd && property.PropertyType.IsInteger() && property.IsPrimaryKey()
-                ? SqlServerValueGenerationStrategy.Identity
-                : default(SqlServerValueGenerationStrategy?));
+        private SqlServerValueGenerationStrategy? GetValueGenerationStrategy(IProperty property)
+        {
+            if (property.GenerateValueOnAdd)
+            {
+                switch (property.SqlServer().ValueGenerationStrategy)
+                {
+                    case null:
+                        return property.EntityType.Model.SqlServer().ValueGenerationStrategy ?? default(SqlServerValueGenerationStrategy?);
+                    case SqlServerValueGenerationStrategy.Default:
+                        return property.EntityType.Model.SqlServer().ValueGenerationStrategy ?? SqlServerValueGenerationStrategy.Identity;
+                }
+                return property.SqlServer().ValueGenerationStrategy;
+            }
+            return default(SqlServerValueGenerationStrategy?);
+        }
 
         #endregion
 
