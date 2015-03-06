@@ -80,8 +80,10 @@ namespace Microsoft.Data.Entity.Relational.Query
                     ? inFactory(column, new[] { value })
                     : VisitExpression(binaryExpression.Right) as InExpressionBase;
 
-            if (newLeft != null
-                && newRight != null)
+            if (newLeft != null 
+                && newLeft.Values != null
+                && newRight != null
+                && newRight.Values != null)
             {
                 if (newLeft.Column.Equals(newRight.Column))
                 {
@@ -96,7 +98,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                     newRight.Values.Count > 1 ? newRight : binaryExpression.Right);
             }
 
-            if (newLeft != null)
+            if (newLeft != null && newLeft.Values != null)
             {
                 return Expression.MakeBinary(
                     expressionType,
@@ -104,7 +106,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                     binaryExpression.Right);
             }
 
-            if (newRight != null)
+            if (newRight != null && newRight.Values != null)
             {
                 return Expression.MakeBinary(
                     expressionType,
